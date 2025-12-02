@@ -33,6 +33,7 @@ const CustomerForm = () => {
       amount: 0,
       autoRenew: false
     },
+    catalogueLimit: -1,
     isActive: true
   });
 
@@ -44,6 +45,11 @@ const CustomerForm = () => {
       fetchCustomer();
     }
   }, [id]);
+
+  // Debug: log formData changes
+  useEffect(() => {
+    console.log('FormData catalogueLimit:', formData.catalogueLimit);
+  }, [formData.catalogueLimit]);
 
   const fetchCustomer = async () => {
     try {
@@ -74,6 +80,7 @@ const CustomerForm = () => {
           amount: 0,
           autoRenew: false
         },
+        catalogueLimit: customer.catalogueLimit !== undefined ? customer.catalogueLimit : -1,
         isActive: customer.isActive
       });
       setLoading(false);
@@ -86,6 +93,8 @@ const CustomerForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    console.log('handleChange called:', { name, value, type });
 
     if (name.startsWith('address.')) {
       const addressField = name.split('.')[1];
@@ -106,10 +115,22 @@ const CustomerForm = () => {
         }
       }));
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
+      let finalValue = type === 'checkbox' ? checked : value;
+
+      // Convert catalogueLimit to integer
+      if (name === 'catalogueLimit') {
+        finalValue = parseInt(value, 10);
+        console.log('CatalogueLimit parsed:', { original: value, parsed: finalValue, type: typeof finalValue });
+      }
+
+      setFormData(prev => {
+        const newState = {
+          ...prev,
+          [name]: finalValue
+        };
+        console.log('New formData state:', newState);
+        return newState;
+      });
     }
   };
 
@@ -135,6 +156,14 @@ const CustomerForm = () => {
       setLoading(true);
 
       const payload = { ...formData };
+
+      // Ensure catalogueLimit is a number
+      payload.catalogueLimit = parseInt(payload.catalogueLimit, 10);
+      if (isNaN(payload.catalogueLimit)) {
+        payload.catalogueLimit = -1;
+      }
+
+      console.log('Submitting payload with catalogueLimit:', payload.catalogueLimit, typeof payload.catalogueLimit);
 
       // Calculate end date if plan is set and start date exists
       if (formData.subscription.plan !== 'none' && formData.subscription.startDate && !formData.subscription.endDate) {
@@ -317,6 +346,32 @@ const CustomerForm = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Company Name"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Catalogue Limit
+                </label>
+                <select
+                  name="catalogueLimit"
+                  value={String(formData.catalogueLimit ?? -1)}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="-1">Unlimited</option>
+                  <option value="0">No Catalogues</option>
+                  <option value="1">1 Catalogue</option>
+                  <option value="2">2 Catalogues</option>
+                  <option value="3">3 Catalogues</option>
+                  <option value="5">5 Catalogues</option>
+                  <option value="10">10 Catalogues</option>
+                  <option value="20">20 Catalogues</option>
+                  <option value="50">50 Catalogues</option>
+                  <option value="100">100 Catalogues</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Set the maximum number of catalogues this customer can create
+                </p>
               </div>
 
               <div className="flex items-center">

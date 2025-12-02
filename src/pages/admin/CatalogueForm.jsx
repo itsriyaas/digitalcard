@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCatalogue, updateCatalogue, fetchCatalogue, clearCurrentCatalogue } from '../../features/catalogue/catalogueSlice';
-import { FiSave, FiX, FiImage, FiEye, FiEyeOff, FiUpload } from 'react-icons/fi';
+import { FiSave, FiX, FiImage, FiEye, FiEyeOff, FiUpload, FiTrash2 } from 'react-icons/fi';
 import Loader from '../../components/common/Loader';
 import { uploadSingleFile } from '../../services/uploadAPI';
 
@@ -165,6 +165,13 @@ const CatalogueForm = () => {
     }
   };
 
+  const handleDeleteImage = (type) => {
+    setFormData(prev => ({
+      ...prev,
+      [type]: ''
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError('');
@@ -296,7 +303,7 @@ const CatalogueForm = () => {
                   Banner Image
                 </label>
 
-                {/* Upload Button */}
+                {/* Upload and Delete Buttons */}
                 <div className="flex gap-2 mb-2">
                   <label className="flex-1">
                     <input
@@ -313,6 +320,17 @@ const CatalogueForm = () => {
                       </span>
                     </div>
                   </label>
+                  {formData.banner && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage('banner')}
+                      className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-colors flex items-center gap-2"
+                      title="Delete banner"
+                    >
+                      <FiTrash2 />
+                      <span className="hidden sm:inline text-sm">Delete</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* URL Input (Alternative) */}
@@ -329,7 +347,7 @@ const CatalogueForm = () => {
 
                 {/* Preview */}
                 {formData.banner && (
-                  <div className="mt-3">
+                  <div className="mt-3 relative">
                     <p className="text-xs text-gray-500 mb-2">Preview:</p>
                     <img src={formData.banner} alt="Banner preview" className="w-full h-32 sm:h-48 object-cover rounded-md border border-gray-200" />
                   </div>
@@ -341,7 +359,7 @@ const CatalogueForm = () => {
                   Logo
                 </label>
 
-                {/* Upload Button */}
+                {/* Upload and Delete Buttons */}
                 <div className="flex gap-2 mb-2">
                   <label className="flex-1">
                     <input
@@ -358,6 +376,17 @@ const CatalogueForm = () => {
                       </span>
                     </div>
                   </label>
+                  {formData.logo && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage('logo')}
+                      className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-colors flex items-center gap-2"
+                      title="Delete logo"
+                    >
+                      <FiTrash2 />
+                      <span className="hidden sm:inline text-sm">Delete</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* URL Input (Alternative) */}

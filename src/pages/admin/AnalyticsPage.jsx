@@ -32,12 +32,17 @@ const AnalyticsPage = () => {
       const catalogueRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/catalogue`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const catalogues = catalogueRes.data.data;
+      const catalogues = catalogueRes.data.data || [];
 
       // Fetch products
       const productRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/products`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      // Handle products response structure
+      const products = productRes.data.data || productRes.data || [];
+      console.log('Products response:', productRes.data);
+      console.log('Total products:', products.length);
 
       // Calculate stats
       let totalOrders = 0;
@@ -69,7 +74,7 @@ const AnalyticsPage = () => {
 
       setStats({
         totalCatalogues: catalogues.length,
-        totalProducts: productRes.data.data.length,
+        totalProducts: Array.isArray(products) ? products.length : 0,
         totalOrders,
         totalRevenue,
         totalVisitors,
@@ -80,6 +85,7 @@ const AnalyticsPage = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching analytics:', error);
+      console.error('Error details:', error.response?.data);
       setLoading(false);
     }
   };

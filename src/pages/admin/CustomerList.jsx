@@ -244,7 +244,7 @@ const CustomerList = () => {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Subscription End
+                    Catalogue Limit
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Account Status
@@ -273,7 +273,18 @@ const CustomerList = () => {
                       {getSubscriptionBadge(customer.subscription)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(customer.subscription?.endDate)}
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        (customer.catalogueLimit === -1 || customer.catalogueLimit === undefined) ? 'bg-green-100 text-green-800' :
+                        customer.catalogueLimit === 0 ? 'bg-red-100 text-red-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {(customer.catalogueLimit === -1 || customer.catalogueLimit === undefined)
+                          ? 'Unlimited'
+                          : customer.catalogueLimit === 0
+                          ? 'None'
+                          : `${customer.catalogueLimit} Catalogue${customer.catalogueLimit > 1 ? 's' : ''}`
+                        }
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {customer.isActive ? (
