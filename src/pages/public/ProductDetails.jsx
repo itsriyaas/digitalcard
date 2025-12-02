@@ -53,6 +53,7 @@ const ProductDetails = () => {
     );
   }
 
+  const isEnquiryOnly = !currentProduct.price && currentProduct.price !== 0;
   const displayPrice = currentProduct.discountPrice || currentProduct.price;
   const hasDiscount = currentProduct.discountPrice && currentProduct.discountPrice < currentProduct.price;
   const discountPercentage = hasDiscount
@@ -150,21 +151,32 @@ const ProductDetails = () => {
             </div>
 
             <div className="mb-6">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-4xl font-bold text-blue-600">
-                  ₹{displayPrice}
-                </span>
-                {hasDiscount && (
-                  <>
-                    <span className="text-xl text-gray-400 line-through">
-                      ₹{currentProduct.price}
-                    </span>
-                    <span className="bg-green-100 text-green-800 text-sm font-bold px-2 py-1 rounded">
-                      {discountPercentage}% OFF
-                    </span>
-                  </>
-                )}
-              </div>
+              {isEnquiryOnly ? (
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-3xl font-bold text-green-600">
+                    Contact for Price
+                  </span>
+                  <span className="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded">
+                    Enquiry Only
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-4xl font-bold text-blue-600">
+                    {currentProduct.currency === 'USD' ? '$' : '₹'}{displayPrice}
+                  </span>
+                  {hasDiscount && (
+                    <>
+                      <span className="text-xl text-gray-400 line-through">
+                        {currentProduct.currency === 'USD' ? '$' : '₹'}{currentProduct.price}
+                      </span>
+                      <span className="bg-green-100 text-green-800 text-sm font-bold px-2 py-1 rounded">
+                        {discountPercentage}% OFF
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
 
             {currentProduct.description && (
@@ -225,17 +237,23 @@ const ProductDetails = () => {
               <div className="flex gap-3">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-md font-medium hover:bg-blue-50 transition-colors"
+                  className={`flex-1 flex items-center justify-center gap-2 ${
+                    isEnquiryOnly
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50'
+                  } py-3 rounded-md font-medium transition-colors`}
                 >
                   <FiShoppingCart />
-                  Add to Cart
+                  {isEnquiryOnly ? 'Add to Enquiry' : 'Add to Cart'}
                 </button>
-                <button
-                  onClick={handleBuyNow}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 transition-colors"
-                >
-                  Buy Now
-                </button>
+                {!isEnquiryOnly && (
+                  <button
+                    onClick={handleBuyNow}
+                    className="flex-1 bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    Buy Now
+                  </button>
+                )}
               </div>
             )}
           </div>

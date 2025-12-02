@@ -5,7 +5,7 @@ import { fetchCart } from '../../features/cart/cartSlice';
 import { createOrder } from '../../features/order/orderSlice';
 import { paymentAPI } from '../../services/paymentAPI';
 import Loader from '../../components/common/Loader';
-import { FiLock } from 'react-icons/fi';
+import { FiLock, FiMessageCircle } from 'react-icons/fi';
 
 const Checkout = () => {
   const { slug } = useParams();
@@ -32,6 +32,12 @@ const Checkout = () => {
 
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [errors, setErrors] = useState({});
+
+  // Check if cart has enquiry-only products
+  const hasEnquiryProducts = cart?.items.some(item => item.isEnquiry || (!item.price && item.price !== 0)) || false;
+
+  // Check if cart has ONLY enquiry products
+  const isEnquiryOnlyCart = cart?.items.every(item => item.isEnquiry || (!item.price && item.price !== 0)) || false;
 
   useEffect(() => {
     if (publicCatalogue?._id) {
@@ -77,6 +83,64 @@ const Checkout = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const generateWhatsAppMessage = () => {
+    if (!validateForm()) {
+      return null;
+    }
+
+    let message = `*New Product Enquiry*\n\n`;
+    message += `*Customer Details:*\n`;
+    message += `Name: ${customerData.name}\n`;
+    message += `Email: ${customerData.email}\n`;
+    message += `Phone: ${customerData.phone}\n\n`;
+
+    message += `*Delivery Address:*\n`;
+    message += `${customerData.address.street}\n`;
+    message += `${customerData.address.city}, ${customerData.address.state} ${customerData.address.zipCode}\n`;
+    message += `${customerData.address.country}\n\n`;
+
+    message += `*Products Enquired:*\n`;
+    cart.items.forEach((item, index) => {
+      message += `${index + 1}. ${item.product.title}\n`;
+      message += `   Quantity: ${item.quantity}\n`;
+      if (!item.isEnquiry && item.price) {
+        message += `   Price: ${item.product.currency === 'USD' ? '$' : '₹'}${item.price} each\n`;
+      } else {
+        message += `   Price: *Contact for pricing*\n`;
+      }
+    });
+
+    if (!isEnquiryOnlyCart && cart.total > 0) {
+      message += `\n*Cart Total:* ${cart.items[0]?.product.currency === 'USD' ? '$' : '₹'}${cart.total.toFixed(2)}\n`;
+    }
+
+    message += `\n_Sent from ${publicCatalogue?.title || 'Digital Catalogue'}_`;
+
+    return encodeURIComponent(message);
+  };
+
+  const handleWhatsAppEnquiry = () => {
+    const message = generateWhatsAppMessage();
+    if (!message) {
+      return;
+    }
+
+    // Get catalogue owner's phone number to send enquiry to the business
+    const ownerPhone = publicCatalogue?.user?.phone;
+
+    if (!ownerPhone) {
+      alert('Business contact number not available. Please contact the seller directly.');
+      return;
+    }
+
+    // Format phone number for WhatsApp (remove spaces, dashes, and add country code if needed)
+    const formattedPhone = ownerPhone.replace(/\D/g, '');
+
+    // Open WhatsApp with pre-filled message - customer will send this to the business
+    const whatsappUrl = `https://wa.me/${formattedPhone}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   const loadRazorpayScript = () => {
@@ -302,41 +366,43 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Payment Method */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold mb-4">Payment Method</h2>
-              <div className="space-y-3">
-                <label className="flex items-center gap-3 p-4 border-2 rounded-md cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="razorpay"
-                    checked={paymentMethod === 'razorpay'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <div>
-                    <p className="font-medium">Razorpay (UPI, Cards, Netbanking)</p>
-                    <p className="text-sm text-gray-500">Pay securely with Razorpay</p>
-                  </div>
-                </label>
+            {/* Payment Method - Only show for non-enquiry carts */}
+            {!isEnquiryOnlyCart && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-bold mb-4">Payment Method</h2>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 p-4 border-2 rounded-md cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="razorpay"
+                      checked={paymentMethod === 'razorpay'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <div>
+                      <p className="font-medium">Razorpay (UPI, Cards, Netbanking)</p>
+                      <p className="text-sm text-gray-500">Pay securely with Razorpay</p>
+                    </div>
+                  </label>
 
-                <label className="flex items-center gap-3 p-4 border-2 rounded-md cursor-pointer hover:bg-gray-50">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cod"
-                    checked={paymentMethod === 'cod'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <div>
-                    <p className="font-medium">Cash on Delivery</p>
-                    <p className="text-sm text-gray-500">Pay when you receive</p>
-                  </div>
-                </label>
+                  <label className="flex items-center gap-3 p-4 border-2 rounded-md cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={paymentMethod === 'cod'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="w-4 h-4"
+                    />
+                    <div>
+                      <p className="font-medium">Cash on Delivery</p>
+                      <p className="text-sm text-gray-500">Pay when you receive</p>
+                    </div>
+                  </label>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Order Summary */}
@@ -345,53 +411,101 @@ const Checkout = () => {
               <h2 className="text-xl font-bold mb-4">Order Summary</h2>
 
               <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                {cart.items.map((item) => (
-                  <div key={item.product._id} className="flex gap-3 pb-3 border-b">
-                    <div className="w-16 h-16 flex-shrink-0 bg-gray-200 rounded">
-                      {item.product.images?.[0] && (
-                        <img src={item.product.images[0]} alt={item.product.title} className="w-full h-full object-cover rounded" />
-                      )}
+                {cart.items.map((item) => {
+                  const isItemEnquiry = item.isEnquiry || (!item.price && item.price !== 0);
+                  return (
+                    <div key={item.product._id} className="flex gap-3 pb-3 border-b">
+                      <div className="w-16 h-16 flex-shrink-0 bg-gray-200 rounded">
+                        {item.product.images?.[0] && (
+                          <img src={item.product.images[0]} alt={item.product.title} className="w-full h-full object-cover rounded" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{item.product.title}</p>
+                        <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                        {isItemEnquiry ? (
+                          <p className="text-xs text-green-600 font-medium">Enquiry Only</p>
+                        ) : (
+                          <p className="text-sm font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">{item.product.title}</p>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                      <p className="text-sm font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>₹{cart.subtotal.toFixed(2)}</span>
+              {hasEnquiryProducts && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                  <p className="text-sm text-green-800">
+                    <strong>Note:</strong> Your cart contains enquiry-only products.
+                    {isEnquiryOnlyCart
+                      ? ' Click the button below to send your enquiry via WhatsApp.'
+                      : ' You can proceed with payment for available items or send an enquiry via WhatsApp for all products.'}
+                  </p>
                 </div>
+              )}
 
-                {cart.discount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
-                    <span>-₹{cart.discount.toFixed(2)}</span>
+              {!isEnquiryOnlyCart && (
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal</span>
+                    <span>₹{cart.subtotal.toFixed(2)}</span>
                   </div>
-                )}
 
-                <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span className="text-blue-600">₹{cart.total.toFixed(2)}</span>
+                  {cart.discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount</span>
+                      <span>-₹{cart.discount.toFixed(2)}</span>
+                    </div>
+                  )}
+
+                  <div className="border-t pt-2 flex justify-between text-lg font-bold">
+                    <span>Total</span>
+                    <span className="text-blue-600">₹{cart.total.toFixed(2)}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <button
-                onClick={handlePlaceOrder}
-                disabled={orderLoading}
-                className="w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
-              >
-                <FiLock />
-                {orderLoading ? 'Processing...' : 'Place Order'}
-              </button>
+              {isEnquiryOnlyCart ? (
+                <>
+                  <button
+                    onClick={handleWhatsAppEnquiry}
+                    className="w-full bg-green-600 text-white py-3 rounded-md font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <FiMessageCircle />
+                    Send Enquiry via WhatsApp
+                  </button>
 
-              <p className="text-xs text-gray-500 text-center mt-3">
-                Your payment information is secure and encrypted
-              </p>
+                  <p className="text-xs text-gray-500 text-center mt-3">
+                    You'll be redirected to WhatsApp to complete your enquiry
+                  </p>
+                </>
+              ) : (
+                <>
+                  {hasEnquiryProducts && (
+                    <button
+                      onClick={handleWhatsAppEnquiry}
+                      className="w-full bg-green-600 text-white py-3 rounded-md font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2 mb-3"
+                    >
+                      <FiMessageCircle />
+                      Send Enquiry via WhatsApp
+                    </button>
+                  )}
+
+                  <button
+                    onClick={handlePlaceOrder}
+                    disabled={orderLoading}
+                    className="w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <FiLock />
+                    {orderLoading ? 'Processing...' : 'Place Order'}
+                  </button>
+
+                  <p className="text-xs text-gray-500 text-center mt-3">
+                    Your payment information is secure and encrypted
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

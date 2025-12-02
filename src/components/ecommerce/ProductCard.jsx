@@ -17,6 +17,7 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
 
   const displayPrice = product.discountPrice || product.price;
   const hasDiscount = product.discountPrice && product.discountPrice < product.price;
+  const isEnquiryOnly = !product.price && product.price !== 0;
 
   return (
     <div
@@ -40,6 +41,11 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
             Featured
           </span>
         )}
+        {isEnquiryOnly && (
+          <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+            Enquiry Only
+          </span>
+        )}
         {!product.stockAvailable && (
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <span className="text-white font-bold text-lg">Out of Stock</span>
@@ -56,13 +62,21 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-blue-600">
-              {product.currency === 'USD' ? '$' : '₹'}{displayPrice}
-            </span>
-            {hasDiscount && (
-              <span className="text-sm text-gray-400 line-through">
-                {product.currency === 'USD' ? '$' : '₹'}{product.price}
+            {isEnquiryOnly ? (
+              <span className="text-lg font-semibold text-green-600">
+                Contact for Price
               </span>
+            ) : (
+              <>
+                <span className="text-xl font-bold text-blue-600">
+                  {product.currency === 'USD' ? '$' : '₹'}{displayPrice}
+                </span>
+                {hasDiscount && (
+                  <span className="text-sm text-gray-400 line-through">
+                    {product.currency === 'USD' ? '$' : '₹'}{product.price}
+                  </span>
+                )}
+              </>
             )}
           </div>
 
@@ -71,7 +85,7 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
               onClick={handleAddToCart}
               className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
             >
-              Add to Cart
+              {isEnquiryOnly ? 'Enquire' : 'Add to Cart'}
             </button>
           )}
         </div>

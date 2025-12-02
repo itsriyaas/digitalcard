@@ -198,10 +198,7 @@ const ProductForm = () => {
       setError('Please enter product title');
       return;
     }
-    if (!formData.price) {
-      setError('Please enter product price');
-      return;
-    }
+    // Price is now optional - no validation needed
 
     try {
       setLoading(true);
@@ -209,7 +206,7 @@ const ProductForm = () => {
       const payload = {
         ...formData,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        price: parseFloat(formData.price),
+        price: formData.price ? parseFloat(formData.price) : null,
         discountPrice: formData.discountPrice ? parseFloat(formData.discountPrice) : undefined,
         stock: parseInt(formData.stock) || 0
       };
@@ -544,19 +541,21 @@ const ProductForm = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price <span className="text-red-500">*</span>
+                  Price
                 </label>
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
-                  required
                   min="0"
                   step="0.01"
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="499"
+                  placeholder="Leave empty for enquiry-only products"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty if this product is for enquiry only (no direct purchase)
+                </p>
               </div>
 
               <div>

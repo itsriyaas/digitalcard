@@ -3,7 +3,8 @@ import { FiMinus, FiPlus, FiTrash2 } from 'react-icons/fi';
 
 const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
   const product = item.product;
-  const subtotal = item.price * item.quantity;
+  const isEnquiry = item.isEnquiry || (!item.price && item.price !== 0);
+  const subtotal = isEnquiry ? 0 : item.price * item.quantity;
 
   const handleDecrease = () => {
     if (item.quantity > 1) {
@@ -52,9 +53,15 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold text-blue-600">
-              {product.currency === 'USD' ? '$' : '₹'}{item.price}
-            </span>
+            {isEnquiry ? (
+              <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded">
+                Enquiry Only
+              </span>
+            ) : (
+              <span className="text-lg font-bold text-blue-600">
+                {product.currency === 'USD' ? '$' : '₹'}{item.price}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -68,7 +75,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
             <span className="w-12 text-center font-medium">{item.quantity}</span>
             <button
               onClick={handleIncrease}
-              disabled={product.stock <= item.quantity}
+              disabled={!isEnquiry && product.stock <= item.quantity}
               className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FiPlus size={14} />
@@ -76,10 +83,16 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => {
           </div>
 
           <div className="text-right">
-            <p className="text-sm text-gray-500">Subtotal</p>
-            <p className="text-lg font-bold text-gray-900">
-              {product.currency === 'USD' ? '$' : '₹'}{subtotal.toFixed(2)}
-            </p>
+            {isEnquiry ? (
+              <p className="text-sm text-gray-500">Contact for price</p>
+            ) : (
+              <>
+                <p className="text-sm text-gray-500">Subtotal</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {product.currency === 'USD' ? '$' : '₹'}{subtotal.toFixed(2)}
+                </p>
+              </>
+            )}
           </div>
         </div>
 
