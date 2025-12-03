@@ -1,15 +1,37 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserCards } from "../../features/cards/cardThunks";
+import { fetchUserCards, deleteCard } from "../../features/cards/cardThunks";
 import { Link } from "react-router-dom";
+import { FiTrash2 } from "react-icons/fi";
 
 const CardList = () => {
   const dispatch = useDispatch();
   const { list, loading } = useSelector((s) => s.cards);
+  const [deletingCardId, setDeletingCardId] = useState(null);
 
   useEffect(() => {
     dispatch(fetchUserCards());
   }, []);
+
+  const handleDelete = async (cardId, cardTitle) => {
+    if (!window.confirm(`Are you sure you want to delete "${cardTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setDeletingCardId(cardId);
+      const result = await dispatch(deleteCard(cardId));
+      if (result.type === 'cards/deleteCard/fulfilled') {
+        alert("Card deleted successfully!");
+      } else {
+        alert("Failed to delete card");
+      }
+    } catch (error) {
+      alert("Error deleting card: " + error.message);
+    } finally {
+      setDeletingCardId(null);
+    }
+  };
 
   return (
     <div className="p-6">
@@ -98,6 +120,15 @@ const CardList = () => {
                   >
                     View
                   </Link>
+                  <button
+                    onClick={() => handleDelete(card._id, card.title)}
+                    disabled={deletingCardId === card._id}
+                    className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    title="Delete card"
+                  >
+                    <FiTrash2 size={16} />
+                    {deletingCardId === card._id ? 'Deleting...' : ''}
+                  </button>
                 </div>
               </div>
             </div>

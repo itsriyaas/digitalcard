@@ -30,8 +30,13 @@ import AnalyticsPage from "../pages/admin/AnalyticsPage";
 import CustomerList from "../pages/admin/CustomerList";
 import CustomerForm from "../pages/admin/CustomerForm";
 
+// Digital Card Pages
+import DigitalCardList from "../pages/dashboard/DigitalCardList";
+import DigitalCardForm from "../pages/dashboard/DigitalCardForm";
+import PublicDigitalCard from "../pages/public/PublicDigitalCard";
+import PublicCardBuilder from "../pages/public/PublicCardBuilder";
+
 // Public Pages
-import PublicCardView from "../pages/public/PublicCardView";
 import CatalogueLanding from "../pages/public/CatalogueLanding";
 import ProductDetails from "../pages/public/ProductDetails";
 import ShoppingCart from "../pages/public/ShoppingCart";
@@ -74,6 +79,21 @@ const AppRouter = () => {
         <Route path="cards/:cardId/edit" element={<CardBuilder />} />
       </Route>
 
+      {/* DIGITAL CARDS ROUTES */}
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        }
+      >
+        {/* Digital Cards Routes */}
+        <Route path="digital-cards" element={<DigitalCardList />} />
+        <Route path="digital-cards/new" element={<DigitalCardForm />} />
+        <Route path="digital-cards/edit/:id" element={<DigitalCardForm />} />
+      </Route>make changes 
+
       {/* ADMIN E-COMMERCE ROUTES */}
       <Route
         path="/admin"
@@ -103,8 +123,11 @@ const AppRouter = () => {
         <Route path="analytics" element={<AnalyticsPage />} />
       </Route>
 
-      {/* PUBLIC DIGITAL CARD - Legacy digital card routes */}
-      <Route path="/card/:slugOrId" element={<PublicCardView />} />
+      {/* PUBLIC CARD BUILDER - Card builder public view */}
+      <Route path="/card/:slugOrId" element={<PublicCardBuilder />} />
+
+      {/* PUBLIC DIGITAL CARD - Digital card public view */}
+      <Route path="/digital-card/:slug" element={<PublicDigitalCard />} />
 
       {/* PUBLIC E-CATALOGUE ROUTES - New e-commerce routes */}
       <Route path="/catalogue/:slug" element={<CatalogueLanding />} />

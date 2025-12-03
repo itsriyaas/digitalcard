@@ -5,6 +5,7 @@ import {
   createCard,
   updateCard,
   fetchSingleCard,
+  deleteCard,
 } from "./cardThunks";
 
 const cardSlice = createSlice({
@@ -76,6 +77,19 @@ const cardSlice = createSlice({
         state.loading = false;
       })
       .addCase(updateCard.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+
+      // Delete card
+      .addCase(deleteCard.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteCard.fulfilled, (state, action) => {
+        state.list = state.list.filter(card => card._id !== action.payload);
+        state.loading = false;
+      })
+      .addCase(deleteCard.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });
