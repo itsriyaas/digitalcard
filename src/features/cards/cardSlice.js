@@ -36,18 +36,48 @@ const cardSlice = createSlice({
       })
 
       // Create Card
+      .addCase(createCard.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(createCard.fulfilled, (state, action) => {
         state.list.push(action.payload);
+        state.currentCard = action.payload;
+        state.loading = false;
+      })
+      .addCase(createCard.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       })
 
       // Fetch Single Card
+      .addCase(fetchSingleCard.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchSingleCard.fulfilled, (state, action) => {
         state.currentCard = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchSingleCard.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       })
 
       // Update card
+      .addCase(updateCard.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(updateCard.fulfilled, (state, action) => {
         state.currentCard = action.payload;
+        // Update the card in the list as well
+        const index = state.list.findIndex(card => card._id === action.payload._id);
+        if (index !== -1) {
+          state.list[index] = action.payload;
+        }
+        state.loading = false;
+      })
+      .addCase(updateCard.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
