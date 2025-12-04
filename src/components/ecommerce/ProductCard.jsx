@@ -37,7 +37,7 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
           <img
             src={product.images[0]}
             alt={product.title}
-            className="w-full h-full object-contain p-2"
+            className="w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">

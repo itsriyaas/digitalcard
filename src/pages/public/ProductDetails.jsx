@@ -17,7 +17,7 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedMedia, setSelectedMedia] = useState({ type: 'image', index: 0 });
   const themeColor = publicCatalogue?.customization?.primaryColor || "#6A0DAD";
-
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 
   useEffect(() => {
@@ -103,7 +103,7 @@ const ProductDetails = () => {
                 <img
                   src={currentProduct.images[selectedMedia.index]}
                   alt="product"
-                  className="zoom-image w-full h-96 object-contain bg-white p-6"
+                  className="zoom-image w-full h-96 object-contain bg-white"
                 />
               )}
 
@@ -113,7 +113,7 @@ const ProductDetails = () => {
                   src={
                     currentProduct.videos[selectedMedia.index].startsWith("http")
                       ? currentProduct.videos[selectedMedia.index]
-                      : `http://localhost:5000${currentProduct.videos[selectedMedia.index]}`
+                      : `${API_URL}${currentProduct.videos[selectedMedia.index]}`
                   }
                   controls
                   className="w-full h-96 object-cover bg-white"
@@ -161,7 +161,7 @@ const ProductDetails = () => {
                   src={
                     video.startsWith("http")
                       ? video
-                      : `http://localhost:5000${video}`
+                      : `${API_URL}${video}`
                   }
                   className="w-full h-full object-cover opacity-60"
                   muted

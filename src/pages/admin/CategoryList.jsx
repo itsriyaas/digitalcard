@@ -240,7 +240,7 @@ const CategoryList = () => {
               {/* Category Image */}
               <div className="relative h-32 bg-gradient-to-br from-blue-400 to-purple-500">
                 {category.image ? (
-                  <img src={category.image} alt={category.name} className="w-full h-full object-cover" />
+                  <img src={category.image} alt={category.name} className="w-full h-full object-contain" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <FiFolder size={40} className="text-white opacity-50" />

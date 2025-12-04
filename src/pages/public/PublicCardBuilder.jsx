@@ -171,17 +171,17 @@ const PublicCardBuilder = () => {
         >
           {/* Banner/Cover Media */}
           {card.coverMedia && (
-            <div className="w-full h-64 bg-gray-200">
+            <div className="w-full h-100 bg-gray-200">
               {card.coverMedia.type === 'image' ? (
                 <img
                   src={card.coverMedia.url}
                   alt="Cover"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               ) : (
                 <video
                   src={card.coverMedia.url}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   controls
                 />
               )}
