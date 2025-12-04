@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserCatalogues, deleteCatalogue } from '../../features/catalogue/catalogueSlice';
 import { FiPlus, FiEdit, FiTrash2, FiEye, FiEyeOff } from 'react-icons/fi';
 import Loader from '../../components/common/Loader';
+import { getFullUrl } from '../../utils/urlHelper';
 
 const CatalogueList = () => {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ const CatalogueList = () => {
             <div key={catalogue._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="h-40 bg-gradient-to-r from-blue-500 to-purple-600 relative">
                 {catalogue.banner ? (
-                  <img src={catalogue.banner} alt={catalogue.title} className="w-full h-full object-cover" />
+                  <img src={getFullUrl(catalogue.banner)} alt={catalogue.title} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white">
                     <h2 className="text-2xl font-bold">{catalogue.title}</h2>

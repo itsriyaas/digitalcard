@@ -4,6 +4,7 @@ import { FaStar, FaQuoteLeft, FaWhatsapp } from 'react-icons/fa';
 import { FiMessageCircle } from 'react-icons/fi';
 import QRCode from 'qrcode';
 import apiClient from '../../services/apiClient';
+import { getFullUrl } from '../../utils/urlHelper';
 
 const PublicCardBuilder = () => {
   const { slugOrId } = useParams();
@@ -193,7 +194,7 @@ const PublicCardBuilder = () => {
             {card.logo && (
               <div className="flex justify-center mb-4">
                 <img
-                  src={card.logo.startsWith('http') ? card.logo : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${card.logo}`}
+                  src={getFullUrl(card.logo)}
                   alt="Company Logo"
                   className="h-20 object-contain"
                   onError={(e) => {

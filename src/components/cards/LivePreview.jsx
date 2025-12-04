@@ -1,4 +1,5 @@
 import React from 'react';
+import { getFullUrl } from '../../utils/urlHelper';
 import { FaStar, FaQuoteLeft, FaTag, FaPercent } from 'react-icons/fa';
 
 const LivePreview = ({ cardData }) => {
@@ -98,7 +99,7 @@ const LivePreview = ({ cardData }) => {
             {logo && (
               <div className="flex justify-center mb-4">
                 <img
-                  src={logo.startsWith('http') ? logo : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${logo}`}
+                  src={getFullUrl(logo)}
                   alt="Company Logo"
                   className="h-20 object-contain"
                   onError={(e) => {

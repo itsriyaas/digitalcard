@@ -8,6 +8,7 @@ import {
 } from "../../features/cards/cardThunks";
 import TemplateSelector from "../../components/cards/TemplateSelector";
 import CustomizationPanel from "../../components/cards/CustomizationPanel";
+import { getFullUrl } from "../../utils/urlHelper";
 import CoverMediaUpload from "../../components/cards/CoverMediaUpload";
 import GalleryManager from "../../components/cards/GalleryManager";
 import ButtonsManager from "../../components/cards/ButtonsManager";
@@ -235,7 +236,7 @@ const CardBuilder = () => {
                     {cardData.logo ? (
                       <div className="relative">
                         <img
-                          src={cardData.logo.startsWith('http') ? cardData.logo : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${cardData.logo}`}
+                          src={getFullUrl(cardData.logo)}
                           alt="Company Logo"
                           className="w-32 h-32 object-contain mx-auto border border-gray-200 rounded-lg p-2 bg-white"
                           onError={(e) => {

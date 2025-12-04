@@ -11,6 +11,7 @@ import ProductCard from "../../components/ecommerce/ProductCard";
 import Loader from "../../components/common/Loader";
 
 import { FiShoppingCart, FiSearch } from "react-icons/fi";
+import { getFullUrl } from "../../utils/urlHelper";
 
 const CatalogueLanding = () => {
   const { slug } = useParams();
@@ -97,7 +98,7 @@ const CatalogueLanding = () => {
             <div className="flex items-center gap-3">
               {publicCatalogue.logo && (
                 <img
-                  src={publicCatalogue.logo}
+                  src={getFullUrl(publicCatalogue.logo)}
                   alt={publicCatalogue.title}
                   className="h-12"
                 />
@@ -161,7 +162,7 @@ const CatalogueLanding = () => {
       <div className="relative hero-wave pb-10">
         {publicCatalogue.banner && (
           <img
-            src={publicCatalogue.banner}
+            src={getFullUrl(publicCatalogue.banner)}
             className="w-full object-cover h-md-96"
             alt="Banner"
           />
@@ -185,11 +186,7 @@ const CatalogueLanding = () => {
       >
         {cat.image ? (
           <img
-            src={
-              cat.image.startsWith("http")
-                ? cat.image
-                : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${cat.image}`
-            }
+            src={getFullUrl(cat.image)}
             alt={cat.name}
             className="w-full h-full object-contain"
             onError={(e) => (e.target.style.display = "none")}
