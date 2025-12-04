@@ -5,6 +5,7 @@ const LivePreview = ({ cardData }) => {
   const {
     title = 'Your Card Title',
     about = 'Your business description goes here...',
+    logo,
     template = {},
     customization = {},
     coverMedia,
@@ -94,6 +95,20 @@ const LivePreview = ({ cardData }) => {
           )}
 
           <div style={{ padding: spacingMap[spacing] }}>
+            {logo && (
+              <div className="flex justify-center mb-4">
+                <img
+                  src={logo.startsWith('http') ? logo : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${logo}`}
+                  alt="Company Logo"
+                  className="h-20 object-contain"
+                  onError={(e) => {
+                    console.error('Logo failed to load:', logo);
+                    e.target.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+
             <div className="text-center mb-6">
               <h1
                 className="text-3xl font-bold mb-2"

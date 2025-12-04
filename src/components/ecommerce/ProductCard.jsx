@@ -15,6 +15,14 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
     }
   };
 
+  // Strip HTML tags from description for preview
+  const stripHtml = (html) => {
+    if (!html) return '';
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   const displayPrice = product.discountPrice || product.price;
   const hasDiscount = product.discountPrice && product.discountPrice < product.price;
   const isEnquiryOnly = !product.price && product.price !== 0;
@@ -57,7 +65,7 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
         <h3 className="font-semibold text-lg mb-2 line-clamp-2">{product.title}</h3>
 
         {product.description && (
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{stripHtml(product.description)}</p>
         )}
 
         <div className="flex items-center justify-between">

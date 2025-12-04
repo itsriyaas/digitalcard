@@ -49,3 +49,15 @@ export const updateCard = createAsyncThunk(
     }
   }
 );
+
+export const deleteCard = createAsyncThunk(
+  "cards/deleteCard",
+  async (cardId, { rejectWithValue }) => {
+    try {
+      await apiClient.delete(`/cards/${cardId}`);
+      return cardId;
+    } catch (err) {
+      return rejectWithValue("Delete failed");
+    }
+  }
+);

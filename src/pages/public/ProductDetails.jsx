@@ -15,11 +15,21 @@ const ProductDetails = () => {
   const { publicCatalogue } = useSelector((state) => state.catalogue);
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedMedia, setSelectedMedia] = useState({ type: 'image', index: 0 });
+  const themeColor = publicCatalogue?.customization?.primaryColor || "#6A0DAD";
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 
   useEffect(() => {
     dispatch(fetchProduct(productId));
   }, [dispatch, productId]);
+
+  useEffect(() => {
+    const primary = publicCatalogue?.customization?.primaryColor || "#6A0DAD";
+    document.documentElement.style.setProperty("--primaryColor", primary);
+  }, [publicCatalogue]);
+
+
 
   const handleAddToCart = async () => {
     await dispatch(addToCart({
@@ -61,13 +71,14 @@ const ProductDetails = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+    <div className="min-h-screen bg-white">
+
+      {/* Top Header */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <button
             onClick={() => navigate(`/catalogue/${slug}`)}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+            className="flex items-center gap-2 text-[var(--primaryColor)] hover:underline"
           >
             <FiArrowLeft />
             Back to Catalogue
@@ -75,156 +86,248 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Images & Videos */}
+      {/* Main Layout */}
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+          {/* LEFT — IMAGE DISPLAY */}
           <div>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
-              {currentProduct.images && currentProduct.images.length > 0 ? (
+            {/* Large Main Image Box with Purple Background */}
+            {/* Main Media Viewer (Image or Video) */}
+            <div
+              className="zoom-container overflow-hidden flex items-center justify-center"
+              style={{ backgroundColor: themeColor }}
+            >
+              {/* Image */}
+              {selectedMedia.type === "image" && currentProduct.images?.length > 0 && (
                 <img
-                  src={currentProduct.images[selectedImage]}
-                  alt={currentProduct.title}
-                  className="w-full h-96 object-contain"
+                  src={currentProduct.images[selectedMedia.index]}
+                  alt="product"
+                  className="zoom-image w-full h-96 object-contain bg-white"
                 />
-              ) : (
-                <div className="w-full h-96 flex items-center justify-center bg-gray-200 text-gray-400">
-                  No Image Available
-                </div>
+              )}
+
+              {/* Video */}
+              {selectedMedia.type === "video" && currentProduct.videos?.length > 0 && (
+                <video
+                  src={
+                    currentProduct.videos[selectedMedia.index].startsWith("http")
+                      ? currentProduct.videos[selectedMedia.index]
+                      : `${API_URL}${currentProduct.videos[selectedMedia.index]}`
+                  }
+                  controls
+                  className="w-full h-96 object-cover bg-white"
+                  preload="metadata"
+                >
+                  Your browser does not support the video tag.
+                </video>
               )}
             </div>
 
-            {currentProduct.images && currentProduct.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2 mb-4">
-                {currentProduct.images.map((image, index) => (
-                  <button
+
+            {/* Thumbnail Strip */}
+            {/* Image Thumbnails */}
+            {currentProduct.images?.map((image, i) => (
+              <button
+                key={`img-${i}`}
+                onClick={() => setSelectedMedia({ type: "image", index: i })}
+                className={`w-20 h-20 mt-5 me-2 rounded-md border-2 overflow-hidden transition 
+        ${selectedMedia.type === "image" && selectedMedia.index === i
+                    ? "border-[var(--primaryColor)]"
+                    : "border-gray-300"
+                  }`}
+              >
+                <img
+                  src={image}
+                  className="w-full h-full object-cover"
+                  alt="thumb"
+                />
+              </button>
+            ))}
+
+            {/* Video Thumbnails */}
+            {currentProduct.videos?.map((video, i) => (
+              <button
+                key={`vid-${i}`}
+                onClick={() => setSelectedMedia({ type: "video", index: i })}
+                className={`w-20 h-20 rounded-md border-2 relative overflow-hidden transition
+        ${selectedMedia.type === "video" && selectedMedia.index === i
+                    ? "border-[var(--primaryColor)]"
+                    : "border-gray-300"
+                  }`}
+              >
+                {/* Video Thumbnail Preview */}
+                <video
+                  src={
+                    video.startsWith("http")
+                      ? video
+                      : `${API_URL}${video}`
+                  }
+                  className="w-full h-full object-cover opacity-60"
+                  muted
+                />
+
+                {/* Play Icon Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="bg-black bg-opacity-50 rounded-full p-2">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="white"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* RIGHT — Product Info */}
+          <div className="space-y-6">
+
+            {/* Category */}
+            {currentProduct?.category && (
+              <p className="text-sm text-gray-500">
+                {currentProduct.category.name}
+              </p>
+            )}
+
+            {/* Title */}
+            <h1
+              className="text-3xl font-bold"
+              style={{
+                color: "var(--primaryColor)",
+              }}
+            >
+              {currentProduct.title}
+            </h1>
+
+            {/* Tags */}
+            {currentProduct.tags?.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {currentProduct.tags.map((tag, index) => (
+                  <span
                     key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`border-2 rounded-md overflow-hidden ${
-                      selectedImage === index ? 'border-blue-600' : 'border-gray-200'
-                    }`}
+                    className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-md"
                   >
-                    <img src={image} alt={`${currentProduct.title} ${index + 1}`} className="w-full h-20 object-cover" />
-                  </button>
+                    {tag}
+                  </span>
                 ))}
               </div>
             )}
 
-            {/* Product Videos */}
-            {currentProduct.videos && currentProduct.videos.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Videos</h3>
-                <div className="space-y-4">
-                  {currentProduct.videos.map((video, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
-                      <video
-                        src={video}
-                        controls
-                        className="w-full h-64 object-contain"
-                        preload="metadata"
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+            {/* Price Section */}
+            <div className="mt-3">
+              {!isEnquiryOnly ? (
+                <div className="flex items-center gap-3">
+                  <p
+                    className="text-3xl font-bold"
+                    style={{ color: themeColor }}
+                  >
+                    ₹ {displayPrice}
+                  </p>
 
-          {/* Product Info */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="mb-4">
-              {currentProduct.category && (
-                <p className="text-sm text-gray-500 mb-2">{currentProduct.category.name}</p>
-              )}
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{currentProduct.title}</h1>
-
-              {currentProduct.tags && currentProduct.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {currentProduct.tags.map((tag, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="mb-6">
-              {isEnquiryOnly ? (
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl font-bold text-green-600">
-                    Contact for Price
-                  </span>
-                  <span className="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded">
-                    Enquiry Only
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-4xl font-bold text-blue-600">
-                    {currentProduct.currency === 'USD' ? '$' : '₹'}{displayPrice}
-                  </span>
                   {hasDiscount && (
                     <>
                       <span className="text-xl text-gray-400 line-through">
-                        {currentProduct.currency === 'USD' ? '$' : '₹'}{currentProduct.price}
+                        ₹{currentProduct.price}
                       </span>
-                      <span className="bg-green-100 text-green-800 text-sm font-bold px-2 py-1 rounded">
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">
                         {discountPercentage}% OFF
                       </span>
                     </>
                   )}
                 </div>
+              ) : (
+                <p className="text-xl font-semibold text-green-600">
+                  Contact for Price
+                </p>
               )}
             </div>
 
-            {currentProduct.description && (
-              <div className="mb-6">
-                <h3 className="font-bold text-lg mb-2">Description</h3>
-                <p className="text-gray-600 whitespace-pre-wrap">{currentProduct.description}</p>
-              </div>
-            )}
-
+            {/* SKU */}
             {currentProduct.sku && (
-              <div className="mb-6">
-                <p className="text-sm text-gray-500">SKU: {currentProduct.sku}</p>
-              </div>
+              <p className="text-sm text-gray-600">
+                <strong>SKU:</strong> {currentProduct.sku}
+              </p>
             )}
 
             {/* Stock Status */}
-            <div className="mb-6">
-              {currentProduct.stockAvailable ? (
+            <div className="mt-4">
+              {currentProduct?.stockAvailable === true ? (
                 <>
                   {currentProduct.stock <= 10 && currentProduct.stock > 0 && (
-                    <p className="text-orange-600 font-medium mb-2">
+                    <p className="text-orange-600 font-medium">
                       Only {currentProduct.stock} left in stock!
                     </p>
                   )}
-                  <p className="text-green-600 font-medium">In Stock</p>
+                  <p className="text-green-600 font-bold">In Stock</p>
                 </>
               ) : (
                 <p className="text-red-600 font-bold text-lg">Out of Stock</p>
               )}
             </div>
 
+            {/* Description */}
+            {currentProduct.description && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-600 mb-2">
+                  Description
+                </h2>
+                <div
+                  className="text-gray-700 leading-relaxed prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: currentProduct.description }}
+                />
+              </div>
+            )}
+
+            {/* Product Attributes (NWT, GWT, Diamond Wt, etc) */}
+            <div className="space-y-1 text-gray-700 mt-2">
+              {currentProduct.weight && (
+                <p>
+                  <strong>Weight:</strong> {currentProduct.weight}
+                </p>
+              )}
+
+              {currentProduct.attributes?.map((attr, idx) => (
+                <p key={idx}>
+                  <strong>{attr.label}:</strong> {attr.value}
+                </p>
+              ))}
+
+              {/* SAMPLE FOR JEWELLERY ATTRIBUTES */}
+              {currentProduct.nwt && <p><strong>N.W.T:</strong> {currentProduct.nwt}</p>}
+              {currentProduct.gwt && <p><strong>G.W.T:</strong> {currentProduct.gwt}</p>}
+              {currentProduct.diamondWt && (
+                <p><strong>Diamond Weight:</strong> {currentProduct.diamondWt}</p>
+              )}
+              {currentProduct.dpc && <p><strong>D.pc:</strong> {currentProduct.dpc}</p>}
+            </div>
+
             {/* Quantity Selector */}
             {currentProduct.stockAvailable && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                <div className="flex items-center gap-3">
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-gray-600 mb-1">
+                  Quantity
+                </h3>
+
+                <div className="flex items-center gap-4">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={quantity <= 1}
-                    className="w-10 h-10 flex items-center justify-center rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                    className="w-10 h-10 border rounded-md flex items-center justify-center"
                   >
                     <FiMinus />
                   </button>
-                  <span className="w-16 text-center font-medium text-lg">{quantity}</span>
+
+                  <span className="text-xl font-semibold">{quantity}</span>
+
                   <button
-                    onClick={() => setQuantity(Math.min(currentProduct.stock, quantity + 1))}
-                    disabled={quantity >= currentProduct.stock}
-                    className="w-10 h-10 flex items-center justify-center rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                    onClick={() =>
+                      setQuantity(Math.min(currentProduct.stock, quantity + 1))
+                    }
+                    className="w-10 h-10 border rounded-md flex items-center justify-center"
                   >
                     <FiPlus />
                   </button>
@@ -232,35 +335,23 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* Action Buttons */}
+            {/* ADD TO CART BUTTON */}
             {currentProduct.stockAvailable && (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleAddToCart}
-                  className={`flex-1 flex items-center justify-center gap-2 ${
-                    isEnquiryOnly
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50'
-                  } py-3 rounded-md font-medium transition-colors`}
-                >
-                  <FiShoppingCart />
-                  {isEnquiryOnly ? 'Add to Enquiry' : 'Add to Cart'}
-                </button>
-                {!isEnquiryOnly && (
-                  <button
-                    onClick={handleBuyNow}
-                    className="flex-1 bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    Buy Now
-                  </button>
-                )}
-              </div>
+              <button
+                onClick={handleAddToCart}
+                className="w-full py-4 mt-6 rounded-full text-white text-lg font-semibold shadow-lg flex items-center justify-center gap-3"
+                style={{ backgroundColor: themeColor }}
+              >
+                <FiShoppingCart size={20} />
+                Add to Cart
+              </button>
             )}
           </div>
         </div>
       </div>
     </div>
   );
+
 };
 
 export default ProductDetails;
