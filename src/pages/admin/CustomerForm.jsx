@@ -34,6 +34,7 @@ const CustomerForm = () => {
       autoRenew: false
     },
     catalogueLimit: -1,
+    cardLimit: -1,
     isActive: true
   });
 
@@ -81,6 +82,7 @@ const CustomerForm = () => {
           autoRenew: false
         },
         catalogueLimit: customer.catalogueLimit !== undefined ? customer.catalogueLimit : -1,
+        cardLimit: customer.cardLimit !== undefined ? customer.cardLimit : -1,
         isActive: customer.isActive
       });
       setLoading(false);
@@ -117,10 +119,14 @@ const CustomerForm = () => {
     } else {
       let finalValue = type === 'checkbox' ? checked : value;
 
-      // Convert catalogueLimit to integer
+      // Convert catalogueLimit and cardLimit to integer
       if (name === 'catalogueLimit') {
         finalValue = parseInt(value, 10);
         console.log('CatalogueLimit parsed:', { original: value, parsed: finalValue, type: typeof finalValue });
+      }
+      if (name === 'cardLimit') {
+        finalValue = parseInt(value, 10);
+        console.log('CardLimit parsed:', { original: value, parsed: finalValue, type: typeof finalValue });
       }
 
       setFormData(prev => {
@@ -163,7 +169,14 @@ const CustomerForm = () => {
         payload.catalogueLimit = -1;
       }
 
+      // Ensure cardLimit is a number
+      payload.cardLimit = parseInt(payload.cardLimit, 10);
+      if (isNaN(payload.cardLimit)) {
+        payload.cardLimit = -1;
+      }
+
       console.log('Submitting payload with catalogueLimit:', payload.catalogueLimit, typeof payload.catalogueLimit);
+      console.log('Submitting payload with cardLimit:', payload.cardLimit, typeof payload.cardLimit);
 
       // Calculate end date if plan is set and start date exists
       if (formData.subscription.plan !== 'none' && formData.subscription.startDate && !formData.subscription.endDate) {
@@ -371,6 +384,32 @@ const CustomerForm = () => {
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
                   Set the maximum number of catalogues this customer can create
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Card Limit
+                </label>
+                <select
+                  name="cardLimit"
+                  value={String(formData.cardLimit ?? -1)}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="-1">Unlimited</option>
+                  <option value="0">No Cards</option>
+                  <option value="1">1 Card</option>
+                  <option value="2">2 Cards</option>
+                  <option value="3">3 Cards</option>
+                  <option value="5">5 Cards</option>
+                  <option value="10">10 Cards</option>
+                  <option value="20">20 Cards</option>
+                  <option value="50">50 Cards</option>
+                  <option value="100">100 Cards</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Set the maximum number of cards this customer can create
                 </p>
               </div>
 

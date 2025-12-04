@@ -98,7 +98,7 @@ const LivePreview = ({ cardData }) => {
             {logo && (
               <div className="flex justify-center mb-4">
                 <img
-                  src={logo.startsWith('http') ? logo : `http://localhost:5000${logo}`}
+                  src={logo.startsWith('http') ? logo : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${logo}`}
                   alt="Company Logo"
                   className="h-20 object-contain"
                   onError={(e) => {
