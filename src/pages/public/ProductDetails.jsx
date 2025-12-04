@@ -131,7 +131,7 @@ const ProductDetails = () => {
               <button
                 key={`img-${i}`}
                 onClick={() => setSelectedMedia({ type: "image", index: i })}
-                className={`w-20 h-20 mt-5 rounded-md border-2 overflow-hidden transition 
+                className={`w-20 h-20 mt-5 me-2 rounded-md border-2 overflow-hidden transition 
         ${selectedMedia.type === "image" && selectedMedia.index === i
                     ? "border-[var(--primaryColor)]"
                     : "border-gray-300"
