@@ -5,6 +5,7 @@ import { fetchProduct } from '../../features/product/productSlice';
 import { addToCart } from '../../features/cart/cartSlice';
 import Loader from '../../components/common/Loader';
 import { FiArrowLeft, FiShoppingCart, FiMinus, FiPlus } from 'react-icons/fi';
+import { getFullUrl } from '../../utils/urlHelper';
 
 const ProductDetails = () => {
   const { slug, productId } = useParams();
@@ -110,11 +111,7 @@ const ProductDetails = () => {
               {/* Video */}
               {selectedMedia.type === "video" && currentProduct.videos?.length > 0 && (
                 <video
-                  src={
-                    currentProduct.videos[selectedMedia.index].startsWith("http")
-                      ? currentProduct.videos[selectedMedia.index]
-                      : `${API_URL}${currentProduct.videos[selectedMedia.index]}`
-                  }
+                  src={getFullUrl(currentProduct.videos[selectedMedia.index])}
                   controls
                   className="w-full h-96 object-cover bg-white"
                   preload="metadata"
@@ -158,11 +155,7 @@ const ProductDetails = () => {
               >
                 {/* Video Thumbnail Preview */}
                 <video
-                  src={
-                    video.startsWith("http")
-                      ? video
-                      : `${API_URL}${video}`
-                  }
+                  src={getFullUrl(video)}
                   className="w-full h-full object-cover opacity-60"
                   muted
                 />
