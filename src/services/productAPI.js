@@ -7,6 +7,12 @@ export const productAPI = {
     return data;
   },
 
+  // Get all products (for admin/user)
+  getAll: async () => {
+    const { data } = await apiClient.get('/products');
+    return data;
+  },
+
   // Get products by catalogue
   getByCatalogue: async (catalogueId, filters = {}) => {
     const { data } = await apiClient.get(`/products/catalogue/${catalogueId}`, {
