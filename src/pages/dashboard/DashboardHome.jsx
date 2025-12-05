@@ -136,12 +136,6 @@ const DashboardHome = () => {
               value={`${stats.conversionRate}%`}
               color="bg-pink-500"
             />
-            <StatCard
-              icon={FiPackage}
-              title="Products"
-              value={stats.totalProducts || '-'}
-              color="bg-indigo-500"
-            />
           </div>
 
           {/* Quick Actions */}
