@@ -146,7 +146,8 @@ const CatalogueForm = () => {
       }
 
       const response = await uploadSingleFile(file);
-      const imageUrl = `${import.meta.env.VITE_API_URL}${response.file.url}`;
+      // Cloudinary returns full URLs, no need to prepend API URL
+      const imageUrl = response.file.url;
 
       setFormData(prev => ({
         ...prev,

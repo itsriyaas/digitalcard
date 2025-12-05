@@ -64,9 +64,16 @@ const CatalogueLanding = () => {
     );
   };
 
-  const filteredProducts = products.filter((product) =>
-    selectedCategory ? product.category?._id === selectedCategory : true
-  );
+  const filteredProducts = products.filter((product) => {
+    const matchesCategory = selectedCategory ? product.category?._id === selectedCategory : true;
+    const matchesSearch = searchQuery
+      ? product.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      : true;
+
+    return matchesCategory && matchesSearch;
+  });
 
   const cartItemCount = cart?.items?.length || 0;
   const primaryColor = publicCatalogue?.customization?.primaryColor || "#6A0DAD";
@@ -207,14 +214,57 @@ const CatalogueLanding = () => {
 
       {/* PRODUCTS SECTION TITLE */}
       <div className="max-w-7xl mx-auto px-4 mb-4">
-        <h2
-          className="text-2xl font-bold"
-          style={{ color: "var(--primaryColor)" }}
-        >
-          {selectedCategory
-            ? categories.find((c) => c._id === selectedCategory)?.name
-            : "Products"}
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2
+            className="text-2xl font-bold"
+            style={{ color: "var(--primaryColor)" }}
+          >
+            {selectedCategory
+              ? categories.find((c) => c._id === selectedCategory)?.name
+              : "Products"}
+          </h2>
+
+          {/* Clear Filters Button */}
+          {(selectedCategory || searchQuery) && (
+            <button
+              onClick={() => {
+                setSelectedCategory(null);
+                setSearchQuery("");
+              }}
+              className="text-sm text-gray-600 hover:text-gray-900 underline"
+            >
+              Clear All Filters
+            </button>
+          )}
+        </div>
+
+        {/* Active Filters Display */}
+        {(selectedCategory || searchQuery) && (
+          <div className="mt-2 flex flex-wrap gap-2 text-sm">
+            {searchQuery && (
+              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-2">
+                Search: "{searchQuery}"
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="hover:text-blue-900"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {selectedCategory && (
+              <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full flex items-center gap-2">
+                Category: {categories.find((c) => c._id === selectedCategory)?.name}
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="hover:text-purple-900"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* PRODUCT GRID */}
@@ -223,19 +273,33 @@ const CatalogueLanding = () => {
           <Loader />
         ) : filteredProducts.length === 0 ? (
           <div className="text-center text-gray-600 py-12 bg-white rounded-md shadow">
-            No products found.
+            <p className="text-lg font-semibold mb-2">No products found</p>
+            {(searchQuery || selectedCategory) && (
+              <p className="text-sm">
+                Try adjusting your filters or search term
+              </p>
+            )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                catalogueSlug={slug}
-                onAddToCart={handleAddToCart}
-              />
-            ))}
-          </div>
+          <>
+            {/* Results Count */}
+            {(searchQuery || selectedCategory) && (
+              <div className="mb-4 text-sm text-gray-600">
+                Showing {filteredProducts.length} of {products.length} products
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  catalogueSlug={slug}
+                  onAddToCart={handleAddToCart}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
 

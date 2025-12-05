@@ -139,7 +139,8 @@ const ProductForm = () => {
       setError('');
 
       const response = await uploadMultipleFiles(files);
-      const imageUrls = response.files.map(file => `${import.meta.env.VITE_API_URL}${file.url}`);
+      // Cloudinary returns full URLs, no need to prepend API URL
+      const imageUrls = response.files.map(file => file.url);
 
       setFormData(prev => ({
         ...prev,
@@ -173,7 +174,8 @@ const ProductForm = () => {
       setError('');
 
       const response = await uploadMultipleFiles(files);
-      const videoUrls = response.files.map(file => `${import.meta.env.VITE_API_URL}${file.url}`);
+      // Cloudinary returns full URLs, no need to prepend API URL
+      const videoUrls = response.files.map(file => file.url);
 
       setFormData(prev => ({
         ...prev,
