@@ -32,7 +32,7 @@ const ProductCard = ({ product, catalogueSlug, onAddToCart }) => {
       className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
       onClick={handleProductClick}
     >
-      <div className="relative h-48 overflow-hidden bg-gray-200">
+      <div className="relative h-80 overflow-hidden bg-gray-200">
         {product.images && product.images.length > 0 ? (
           <img
             src={product.images[0]}

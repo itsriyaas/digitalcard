@@ -27,7 +27,27 @@ const ProductDetails = () => {
 
   useEffect(() => {
     const primary = publicCatalogue?.customization?.primaryColor || "#6A0DAD";
+    const fontStyle = publicCatalogue?.customization?.fontStyle || "sans";
     document.documentElement.style.setProperty("--primaryColor", primary);
+
+    // Map font styles to Tailwind font families
+    const fontMap = {
+      'sans': 'ui-sans-serif, system-ui, sans-serif',
+      'serif': 'ui-serif, Georgia, serif',
+      'mono': 'ui-monospace, monospace',
+      'inter': 'Inter, sans-serif',
+      'roboto': 'Roboto, sans-serif',
+      'poppins': 'Poppins, sans-serif',
+      'opensans': 'Open Sans, sans-serif',
+      'lato': 'Lato, sans-serif',
+      'montserrat': 'Montserrat, sans-serif',
+      'playfair': 'Playfair Display, serif',
+      'merriweather': 'Merriweather, serif',
+      'raleway': 'Raleway, sans-serif',
+      'ubuntu': 'Ubuntu, sans-serif',
+    };
+
+    document.documentElement.style.fontFamily = fontMap[fontStyle] || fontMap['sans'];
   }, [publicCatalogue]);
 
 
@@ -113,7 +133,7 @@ const ProductDetails = () => {
                 <video
                   src={getFullUrl(currentProduct.videos[selectedMedia.index])}
                   controls
-                  className="w-full h-96 object-cover bg-white"
+                  className="w-full h-96 object-contain bg-white"
                   preload="metadata"
                 >
                   Your browser does not support the video tag.

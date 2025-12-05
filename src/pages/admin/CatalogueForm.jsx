@@ -470,9 +470,19 @@ const CatalogueForm = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="sans">Sans Serif</option>
+                  <option value="sans">Sans Serif (Default)</option>
                   <option value="serif">Serif</option>
                   <option value="mono">Monospace</option>
+                  <option value="inter">Inter</option>
+                  <option value="roboto">Roboto</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="opensans">Open Sans</option>
+                  <option value="lato">Lato</option>
+                  <option value="montserrat">Montserrat</option>
+                  <option value="playfair">Playfair Display</option>
+                  <option value="merriweather">Merriweather</option>
+                  <option value="raleway">Raleway</option>
+                  <option value="ubuntu">Ubuntu</option>
                 </select>
               </div>
 
