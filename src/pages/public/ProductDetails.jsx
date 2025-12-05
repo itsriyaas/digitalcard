@@ -133,7 +133,7 @@ const ProductDetails = () => {
                 <video
                   src={getFullUrl(currentProduct.videos[selectedMedia.index])}
                   controls
-                  className="w-full h-96 object-cover bg-white"
+                  className="w-full h-96 object-contain bg-white"
                   preload="metadata"
                 >
                   Your browser does not support the video tag.
